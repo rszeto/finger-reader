@@ -1,5 +1,7 @@
 package com.example.fingerscanner;
 
+import SecuGen.FDxSDKPro.JSGFPLib;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
