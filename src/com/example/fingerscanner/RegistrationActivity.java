@@ -1,6 +1,6 @@
 package com.example.fingerscanner;
 
-import java.io.IOException;
+import java.io.FileOutputStream;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
@@ -109,13 +108,23 @@ public class RegistrationActivity extends Activity implements OnClickListener {
 	protected void onActivityResult(int requestCode, int resultCode,
 			Intent imageReturnedIntent) {
 		super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
-
+		SharedPreferences prefs = getSharedPreferences(PREF_NAME, 0);
+		int ct = prefs.getInt("counter", -1);
 		switch (requestCode) {
 		case SELECT_PHOTO:
 			if (resultCode == RESULT_OK) {
 				Bundle extras = imageReturnedIntent.getExtras();
 				Bitmap imageBitmap = (Bitmap) extras.get("data");
 				photo.setImageBitmap(imageBitmap);
+
+				FileOutputStream out;
+				try {
+					out = new FileOutputStream("photo_" + ct);
+					imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+					out.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 
