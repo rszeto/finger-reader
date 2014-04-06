@@ -3,7 +3,7 @@
     package="com.example.fingerscanner"
     android:versionCode="1"
     android:versionName="1.0" >
-
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17" />
@@ -29,8 +29,15 @@
             android:name="com.example.fingerscanner.RegistrationActivity"
             android:label="@string/title_activity_registration" >
         </activity>
-        <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
-                android:resource="@xml/device_filter" />
+        <activity
+            android:name="com.example.fingerscanner.RetrieveActivity"
+            android:label="@string/title_activity_retrieve" >
+        </activity>
+        <activity
+            android:name="com.example.fingerscanner.InfoDisplayActivity"
+            android:label="@string/title_activity_info" >
+        </activity>
+        
     </application>
 
 </manifest>

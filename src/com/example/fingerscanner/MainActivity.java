@@ -161,9 +161,9 @@ public class MainActivity extends Activity implements OnClickListener {
     	}
     	
 		else if (id == retrieveButton.getId()) {
-			//sgfplib.SetBrightness(99);
 			byte[] imBuffer = new byte[mImageWidth * mImageHeight];
 			long result = sgfplib.GetImage(imBuffer);
+			sgfplib.SetLedOn(true);
 			Bitmap b = Bitmap.createBitmap(mImageWidth, mImageHeight,
 					Bitmap.Config.ARGB_8888);
 			b.setHasAlpha(false);
@@ -207,7 +207,10 @@ public class MainActivity extends Activity implements OnClickListener {
 //				hasStoredTemplate = false;
 //			}
 			// TODO: associate template with user
-			sgfplib.SetLedOn(true);
+			imFingerData.setImageBitmap(this.toGrayscale(b));
+			sgfplib.SetLedOn(false);
+			Intent homeToRetrieve = new Intent(MainActivity.this,RetrieveActivity.class);
+    		MainActivity.this.startActivity(homeToRetrieve);
 		}
     }
     
@@ -238,7 +241,7 @@ public class MainActivity extends Activity implements OnClickListener {
     private void debugMessage(String message) {
         //Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
-    
+
   //This broadcast receiver is necessary to get user permissions to access the attached USB device
     private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
     private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
@@ -263,7 +266,7 @@ public class MainActivity extends Activity implements OnClickListener {
     			}
     		}
     	}
-    };  
+    };
     
     public Bitmap toGrayscale(Bitmap bmpOriginal)
     {        
