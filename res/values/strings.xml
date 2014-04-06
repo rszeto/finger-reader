@@ -11,5 +11,6 @@
     <string name="namehint">Enter Full Name</string>
     <string name="zipcode">Enter Your Zipcode</string>
     <string name="title_activity_registration">RegistrationActivity</string>
-
+    <string name="title_activity_retrieve">RetrieveActivity</string>
+    <string name="title_activity_info">InfoDisplayActivity</string>
 </resources>

@@ -59,8 +59,8 @@ public class MainActivity extends Activity implements OnClickListener {
         regButton = (Button) findViewById(R.id.register);
         regButton.setOnClickListener(this);
         retrieveButton = (Button) findViewById(R.id.retrieve);
-        retrieveButton.setOnClickListener(this);
-        imFingerData = (ImageView) findViewById(R.id.fingerData);
+        retrieveButton.setOnClickListener(this);}
+  /*      imFingerData = (ImageView) findViewById(R.id.fingerData);
         
         mMaxTemplateSize = new int[1];
         
@@ -145,7 +145,7 @@ public class MainActivity extends Activity implements OnClickListener {
     	sgfplib.Close();
         super.onDestroy();
     }
-
+*/
     public void onClick(View v){
     	int id = v.getId();
     	
@@ -155,7 +155,7 @@ public class MainActivity extends Activity implements OnClickListener {
     	}
     	
 		else if (id == retrieveButton.getId()) {
-			sgfplib.SetLedOn(true);
+/*			sgfplib.SetLedOn(true);
 			sgfplib.SetBrightness(1);
 			Toast.makeText(this, "Pressed register", Toast.LENGTH_SHORT).show();
 			byte[] buffer = new byte[mImageWidth * mImageHeight];
@@ -169,7 +169,9 @@ public class MainActivity extends Activity implements OnClickListener {
 			b.setPixels(intbuffer, 0, mImageWidth, 0, 0, mImageWidth,
 					mImageHeight);
 			imFingerData.setImageBitmap(this.toGrayscale(b));
-			sgfplib.SetLedOn(false);
+			sgfplib.SetLedOn(false);*/
+			Intent homeToRetrieve = new Intent(MainActivity.this,RetrieveActivity.class);
+    		MainActivity.this.startActivity(homeToRetrieve);
 		}
     }
 
@@ -183,7 +185,7 @@ public class MainActivity extends Activity implements OnClickListener {
     private void debugMessage(String message) {
         //Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
-    
+  /*  
   //This broadcast receiver is necessary to get user permissions to access the attached USB device
     private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
     private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
@@ -208,7 +210,7 @@ public class MainActivity extends Activity implements OnClickListener {
     			}
     		}
     	}
-    };  
+    }; */ 
     
     public Bitmap toGrayscale(Bitmap bmpOriginal)
     {        

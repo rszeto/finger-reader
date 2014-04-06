@@ -1,6 +1,9 @@
 package com.example.fingerscanner;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -9,7 +12,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -109,7 +114,7 @@ public class RegistrationActivity extends Activity implements OnClickListener {
 			Intent imageReturnedIntent) {
 		super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
 		SharedPreferences prefs = getSharedPreferences(PREF_NAME, 0);
-		int ct = prefs.getInt("counter", -1);
+		int ct = prefs.getInt("counter", 0);
 		switch (requestCode) {
 		case SELECT_PHOTO:
 			if (resultCode == RESULT_OK) {
@@ -117,14 +122,27 @@ public class RegistrationActivity extends Activity implements OnClickListener {
 				Bitmap imageBitmap = (Bitmap) extras.get("data");
 				photo.setImageBitmap(imageBitmap);
 
-				FileOutputStream out;
-				try {
-					out = new FileOutputStream("photo_" + ct);
-					imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-					out.close();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+
+String file_path = Environment.getExternalStorageDirectory().toString()+"/fingerprintscanner/";
+File file = new File(file_path+ "photo_" + ct+ ".png");
+FileOutputStream fOut;
+try {
+	fOut = new FileOutputStream(file);
+	imageBitmap.compress(Bitmap.CompressFormat.PNG, 85, fOut);
+	fOut.flush();
+	fOut.close();
+} catch (FileNotFoundException e) {
+	// TODO Auto-generated catch block
+	e.printStackTrace();
+} catch (IOException e) {
+	// TODO Auto-generated catch block
+	e.printStackTrace();
+}
+String filename=file_path+ "photo_" + ct+ ".png";
+Bitmap bitmap = BitmapFactory.decodeFile(filename);
+ImageView image= (ImageView) findViewById(R.id.preview);
+image.setImageBitmap(bitmap);
+
 			}
 		}
 
