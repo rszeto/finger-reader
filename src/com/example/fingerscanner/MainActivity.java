@@ -144,8 +144,7 @@ public class MainActivity extends Activity implements OnClickListener {
     	}
     	
     	else if (id==retrieveButton.getId()){
-    		Intent homeToRegistration = new Intent(MainActivity.this,RegistrationActivity.class);
-    		MainActivity.this.startActivity(homeToRegistration);
+    		
     	}
     }
 
