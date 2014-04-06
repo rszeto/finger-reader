@@ -4,5 +4,12 @@
     <string name="app_name">FingerScanner</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="register">Register</string>
+    <string name="retrieve">Retrieve Info</string>
+    <string name="name">Name</string>
+    <string name="card">Credit Card Number</string>
+    <string name="namehint">Enter Full Name</string>
+    <string name="zipcode">Enter Your Zipcode</string>
+    <string name="title_activity_registration">RegistrationActivity</string>
 
 </resources>
