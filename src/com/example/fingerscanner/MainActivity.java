@@ -1,5 +1,7 @@
 package com.example.fingerscanner;
 
+import java.nio.ByteBuffer;
+
 import SecuGen.FDxSDKPro.*;
 import android.os.Bundle;
 import android.app.Activity;
@@ -10,6 +12,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.util.Log;
@@ -17,6 +24,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity implements OnClickListener {
@@ -38,6 +46,8 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	private int[] mMaxTemplateSize;
 
+	private ImageView imFingerData;
+
 	//private byte[] mRegisterTemplate;
 
 	//private byte[] mVerifyTemplate;
@@ -50,6 +60,7 @@ public class MainActivity extends Activity implements OnClickListener {
         regButton.setOnClickListener(this);
         retrieveButton = (Button) findViewById(R.id.retrieve);
         retrieveButton.setOnClickListener(this);
+        imFingerData = (ImageView) findViewById(R.id.fingerData);
         
         mMaxTemplateSize = new int[1];
         
@@ -115,7 +126,7 @@ public class MainActivity extends Activity implements OnClickListener {
 				debugMessage("TEMPLATE_FORMAT_SG400 SIZE: " + mMaxTemplateSize[0] + "\n");
 //		        boolean smartCaptureEnabled = this.mCheckBoxSCEnabled.isChecked();
 //		        if (smartCaptureEnabled)
-		        	sgfplib.writeData((byte)5, (byte)1);
+		        	sgfplib.writeData((byte)5, (byte)0);
 //		        else
 //		        	sgfplib.writeData((byte)5, (byte)0);
 	        }
@@ -143,9 +154,23 @@ public class MainActivity extends Activity implements OnClickListener {
     		MainActivity.this.startActivity(homeToRegistration);
     	}
     	
-    	else if (id==retrieveButton.getId()){
-    		
-    	}
+		else if (id == retrieveButton.getId()) {
+			sgfplib.SetLedOn(true);
+			sgfplib.SetBrightness(1);
+			Toast.makeText(this, "Pressed register", Toast.LENGTH_SHORT).show();
+			byte[] buffer = new byte[mImageWidth * mImageHeight];
+			long result = sgfplib.GetImage(buffer);
+			Bitmap b = Bitmap.createBitmap(mImageWidth, mImageHeight,
+					Bitmap.Config.ARGB_8888);
+			b.setHasAlpha(false);
+			int[] intbuffer = new int[mImageWidth * mImageHeight];
+			for (int i = 0; i < intbuffer.length; ++i)
+				intbuffer[i] = (int) buffer[i];
+			b.setPixels(intbuffer, 0, mImageWidth, 0, 0, mImageWidth,
+					mImageHeight);
+			imFingerData.setImageBitmap(this.toGrayscale(b));
+			sgfplib.SetLedOn(false);
+		}
     }
 
     @Override
@@ -156,7 +181,7 @@ public class MainActivity extends Activity implements OnClickListener {
     }
     
     private void debugMessage(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
     
   //This broadcast receiver is necessary to get user permissions to access the attached USB device
@@ -184,4 +209,21 @@ public class MainActivity extends Activity implements OnClickListener {
     		}
     	}
     };  
+    
+    public Bitmap toGrayscale(Bitmap bmpOriginal)
+    {        
+        int width, height;
+        height = bmpOriginal.getHeight();
+        width = bmpOriginal.getWidth();    
+
+        Bitmap bmpGrayscale = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
+        Canvas c = new Canvas(bmpGrayscale);
+        Paint paint = new Paint();
+        ColorMatrix cm = new ColorMatrix();
+        cm.setSaturation(0);
+        ColorMatrixColorFilter f = new ColorMatrixColorFilter(cm);
+        paint.setColorFilter(f);
+        c.drawBitmap(bmpOriginal, 0, 0, paint);
+        return bmpGrayscale;
+    }
 }
