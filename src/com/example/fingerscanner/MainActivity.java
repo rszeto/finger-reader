@@ -1,6 +1,7 @@
 package com.example.fingerscanner;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import SecuGen.FDxSDKPro.*;
 import android.os.Bundle;
@@ -48,9 +49,12 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	private ImageView imFingerData;
 
-	//private byte[] mRegisterTemplate;
-
-	//private byte[] mVerifyTemplate;
+	private byte[] storedTemplate;
+	private byte[] storedImage;
+	
+	private boolean hasStoredTemplate;
+	
+	
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,9 +128,10 @@ public class MainActivity extends Activity implements OnClickListener {
 		        sgfplib.SetTemplateFormat(SGFDxTemplateFormat.TEMPLATE_FORMAT_SG400);
 				sgfplib.GetMaxTemplateSize(mMaxTemplateSize);
 				debugMessage("TEMPLATE_FORMAT_SG400 SIZE: " + mMaxTemplateSize[0] + "\n");
+		        sgfplib.SetLedOn(true);
 //		        boolean smartCaptureEnabled = this.mCheckBoxSCEnabled.isChecked();
 //		        if (smartCaptureEnabled)
-		        	sgfplib.writeData((byte)5, (byte)0);
+		        	sgfplib.writeData((byte)5, (byte)1);
 //		        else
 //		        	sgfplib.writeData((byte)5, (byte)0);
 	        }
@@ -135,6 +140,7 @@ public class MainActivity extends Activity implements OnClickListener {
     
     @Override
     public void onPause() {
+    	sgfplib.SetLedOn(false);
     	sgfplib.CloseDevice();
         super.onPause();
     }
@@ -155,23 +161,72 @@ public class MainActivity extends Activity implements OnClickListener {
     	}
     	
 		else if (id == retrieveButton.getId()) {
-			sgfplib.SetLedOn(true);
-			sgfplib.SetBrightness(1);
-			Toast.makeText(this, "Pressed register", Toast.LENGTH_SHORT).show();
-			byte[] buffer = new byte[mImageWidth * mImageHeight];
-			long result = sgfplib.GetImage(buffer);
+			//sgfplib.SetBrightness(99);
+			byte[] imBuffer = new byte[mImageWidth * mImageHeight];
+			long result = sgfplib.GetImage(imBuffer);
 			Bitmap b = Bitmap.createBitmap(mImageWidth, mImageHeight,
 					Bitmap.Config.ARGB_8888);
 			b.setHasAlpha(false);
 			int[] intbuffer = new int[mImageWidth * mImageHeight];
 			for (int i = 0; i < intbuffer.length; ++i)
-				intbuffer[i] = (int) buffer[i];
+				intbuffer[i] = (int) imBuffer[i];
 			b.setPixels(intbuffer, 0, mImageWidth, 0, 0, mImageWidth,
 					mImageHeight);
-			imFingerData.setImageBitmap(this.toGrayscale(b));
-			sgfplib.SetLedOn(false);
+		//	imFingerData.setImageBitmap(this.toGrayscale(b));
+			imFingerData.setImageBitmap(b);
+			int[] qual = new int[1];
+			sgfplib.GetImageQuality(mImageWidth, mImageHeight, imBuffer, qual);
+			Toast.makeText(this, "Pressed 'Retrieve'. Image quality: " + qual[0], Toast.LENGTH_SHORT).show();
+			if(!hasStoredTemplate) {
+				storedImage = Arrays.copyOf(imBuffer, imBuffer.length);
+				hasStoredTemplate = true;
+			}
+			else {
+				double l2Score = l2diff(storedImage, imBuffer);
+				Toast.makeText(this, "L2 score: " + l2Score, Toast.LENGTH_SHORT).show();
+				storedImage = Arrays.copyOf(new byte[imBuffer.length], imBuffer.length);
+				hasStoredTemplate = false;
+			}
+			
+			// Template stuff
+//			SGFingerInfo fingerInfo = new SGFingerInfo();
+//			fingerInfo.FingerNumber = SGFingerPosition.SG_FINGPOS_LT;
+//			fingerInfo.ImageQuality = qual[0];
+//			fingerInfo.ImpressionType = SGImpressionType.SG_IMPTYPE_LP; 
+//			fingerInfo.ViewNumber = 1; 
+//			byte[] templateBuff = new byte[mMaxTemplateSize[0]];
+//			sgfplib.CreateTemplate(fingerInfo, imBuffer, templateBuff);
+//			if(!hasStoredTemplate) {
+//				storedTemplate = Arrays.copyOf(templateBuff, templateBuff.length);
+//				hasStoredTemplate = true;
+//			}
+//			else { // compare current template with stored
+//				boolean didMatch = matchTemplates(storedTemplate, templateBuff);
+//				Toast.makeText(this, "Did the templates match? " + didMatch, Toast.LENGTH_SHORT).show();
+//				storedTemplate = Arrays.copyOf(new byte[templateBuff.length], templateBuff.length);
+//				hasStoredTemplate = false;
+//			}
+			// TODO: associate template with user
+			sgfplib.SetLedOn(true);
 		}
     }
+    
+//    public boolean matchTemplates(byte[] templateA, byte[] templateB) {
+//    	boolean[] match = new boolean[1];
+//    	sgfplib.MatchTemplate(templateA, templateB, SGFDxSecurityLevel.SL_NORMAL, match);
+//    	return match[0];
+//    }
+    
+	public double l2diff(byte[] imageA, byte[] imageB) {
+		double diff = 0;
+		for(int i = 0; i < imageA.length; i++) {
+			int pixFromA = (int)imageA[i];
+			int pixFromB = (int)imageB[i];
+			diff += Math.pow(pixFromA-pixFromB, 2);
+		}
+		diff = Math.sqrt(diff);
+		return diff;
+	}
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
