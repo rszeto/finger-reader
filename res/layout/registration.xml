@@ -64,11 +64,16 @@
         android:ems="10" 
         android:hint="mm/dd/yy"/>
 
+    <ImageView
+        android:id="@+id/photo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
     <Button
         android:id="@+id/choosephoto"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Choose A Photo Of You" />
+        android:text="Take A Picture Of Yourself" />
 
     <LinearLayout
         android:layout_width="match_parent"
